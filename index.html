@@ -278,7 +278,6 @@
         <div class="result-stat-value green" id="rUsdc"></div>
       </div>
     </div>
-    <div class="result-share" id="rShare"></div>
   </div>
 
   <div class="not-found" id="notFound">
@@ -367,11 +366,6 @@ function search(query) {
 
   document.getElementById('rVolume').textContent = fmt(user.volume);
   document.getElementById('rUsdc').textContent = fmtD(usdc);
-
-  const pct = leaderboard.length > 1 ? Math.round((1 - idx / leaderboard.length) * 100) : 100;
-  document.getElementById('rShare').textContent = user.volume > 0
-    ? `Top ${pct}% · ${fmt(user.volume)} of ${fmt(leaderboard.reduce((s,u)=>s+u.volume,0))} total volume`
-    : 'No volume yet — start trading to earn payback!';
 
   card.classList.add('visible');
 }
