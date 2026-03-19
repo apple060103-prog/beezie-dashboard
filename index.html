@@ -80,7 +80,7 @@
   }
 
   .search-input {
-    width: 100%; padding: 16px 20px 16px 48px;
+    width: 100%; padding: 16px 20px;
     background: var(--bg-input); border: 1px solid var(--border);
     border-radius: 14px; color: var(--text);
     font-family: 'JetBrains Mono', monospace; font-size: 15px;
@@ -258,23 +258,7 @@
     <a href="https://beezie.com/r/55OGVP2B" target="_blank" class="ref-link">🔗 Join via Referral Link</a>
   </div>
 
-  <div class="global-bar" id="globalBar">
-    <div class="global-item">
-      <div class="global-label">Total Volume</div>
-      <div class="global-value gold" id="gVolume">—</div>
-    </div>
-    <div class="global-item">
-      <div class="global-label">Payback Pool</div>
-      <div class="global-value green" id="gPayback">—</div>
-    </div>
-    <div class="global-item">
-      <div class="global-label">Referrals</div>
-      <div class="global-value blue" id="gCount">—</div>
-    </div>
-  </div>
-
   <div class="search-box">
-    <span class="search-icon">🔍</span>
     <input type="text" class="search-input" id="searchInput" placeholder="Enter your username..." autocomplete="off" spellcheck="false">
     <div class="search-hint">Type your Beezie username to check your stats</div>
   </div>
@@ -329,10 +313,6 @@ async function loadData() {
     if (!d || !d.leaderboard) throw new Error();
 
     leaderboard = d.leaderboard;
-
-    document.getElementById('gVolume').textContent = fmt(d.total_volume);
-    document.getElementById('gPayback').textContent = fmtD(d.total_payback);
-    document.getElementById('gCount').textContent = `${d.total_users} (${d.active_users} active)`;
 
     const ago = timeAgo(d.updated_at);
     document.getElementById('timerDot').className = 'timer-dot';
