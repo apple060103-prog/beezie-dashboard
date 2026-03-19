@@ -238,6 +238,24 @@
     border-radius: 16px; overflow: hidden;
   }
   .full-board.visible { display: block; }
+  .fb-stats {
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px;
+    background: var(--border); border-bottom: 1px solid var(--border);
+  }
+  .fb-stat {
+    background: var(--bg-card); padding: 16px 12px; text-align: center;
+  }
+  .fb-stat-label {
+    font-size: 10px; color: var(--text3); text-transform: uppercase;
+    letter-spacing: 1px; font-family: 'JetBrains Mono', monospace;
+    margin-bottom: 6px;
+  }
+  .fb-stat-value {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 18px; font-weight: 700; color: var(--text);
+  }
+  .fb-stat-value.gold { color: var(--accent); }
+  .fb-stat-value.green { color: var(--green); }
   .full-board table { width: 100%; border-collapse: collapse; }
   .full-board thead th {
     padding: 12px 14px; font-family: 'JetBrains Mono', monospace;
@@ -273,8 +291,8 @@
     .container { padding: 32px 16px 40px; }
     .logo { font-size: 26px; }
     .result-stat-value { font-size: 20px; }
-    .global-bar { gap: 16px; }
-    .global-value { font-size: 14px; }
+    .fb-stats { grid-template-columns: repeat(2, 1fr); }
+    .fb-stat-value { font-size: 15px; }
   }
 </style>
 </head>
@@ -317,6 +335,24 @@
   </div>
 
   <div class="full-board" id="fullBoard">
+    <div class="fb-stats">
+      <div class="fb-stat">
+        <div class="fb-stat-label">Total Volume</div>
+        <div class="fb-stat-value gold" id="fbVolume"></div>
+      </div>
+      <div class="fb-stat">
+        <div class="fb-stat-label">Payback</div>
+        <div class="fb-stat-value green" id="fbPayback"></div>
+      </div>
+      <div class="fb-stat">
+        <div class="fb-stat-label">Signed Up</div>
+        <div class="fb-stat-value" id="fbTotal"></div>
+      </div>
+      <div class="fb-stat">
+        <div class="fb-stat-label">Active</div>
+        <div class="fb-stat-value" id="fbActive"></div>
+      </div>
+    </div>
     <table>
       <thead><tr>
         <th style="text-align:center;width:44px">#</th>
@@ -390,6 +426,13 @@ function search(query) {
 
   // Admin: full leaderboard
   if (query === 'all1234') {
+    const tv = leaderboard.reduce((s,d)=>s+d.volume,0);
+    const active = leaderboard.filter(d=>d.volume>0).length;
+    document.getElementById('fbVolume').textContent = fmt(tv);
+    document.getElementById('fbPayback').textContent = fmtD(tv*0.01);
+    document.getElementById('fbTotal').textContent = leaderboard.length;
+    document.getElementById('fbActive').textContent = active;
+
     const medals = { 1: '🥇', 2: '🥈', 3: '🥉' };
     const rankCls = { 1: 'g', 2: 's', 3: 'b' };
     document.getElementById('boardBody').innerHTML = leaderboard.map((d, i) => {
