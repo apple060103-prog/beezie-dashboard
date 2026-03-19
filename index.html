@@ -231,6 +231,36 @@
 
   @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.3} }
 
+  /* Full Leaderboard (hidden) */
+  .full-board {
+    display: none; animation: slideUp 0.4s ease-out;
+    background: var(--bg-card); border: 1px solid var(--border);
+    border-radius: 16px; overflow: hidden;
+  }
+  .full-board.visible { display: block; }
+  .full-board table { width: 100%; border-collapse: collapse; }
+  .full-board thead th {
+    padding: 12px 14px; font-family: 'JetBrains Mono', monospace;
+    font-size: 10px; font-weight: 600; color: var(--text3);
+    text-transform: uppercase; letter-spacing: 1px;
+    border-bottom: 1px solid var(--border); text-align: left;
+  }
+  .full-board tbody tr { border-bottom: 1px solid rgba(255,255,255,0.02); transition: background 0.2s; }
+  .full-board tbody tr:nth-child(even) { background: rgba(255,255,255,0.015); }
+  .full-board tbody tr:hover { background: rgba(255,255,255,0.04); }
+  .full-board tbody td { padding: 10px 14px; font-size: 13px; }
+  .full-board .fb-rank { text-align: center; font-family: 'JetBrains Mono', monospace; font-weight: 700; color: var(--text3); }
+  .full-board .fb-rank.g { color: #ffd700; }
+  .full-board .fb-rank.s { color: #c0c0c0; }
+  .full-board .fb-rank.b { color: #cd7f32; }
+  .full-board .fb-user { font-family: 'JetBrains Mono', monospace; font-weight: 500; }
+  .full-board .fb-user.top { color: var(--accent); font-weight: 700; }
+  .full-board .fb-vol { text-align: right; font-family: 'JetBrains Mono', monospace; font-weight: 600; }
+  .full-board .fb-vol.zero { color: var(--text3); }
+  .full-board .fb-usdc { text-align: right; font-family: 'JetBrains Mono', monospace; font-weight: 600; }
+  .full-board .fb-usdc.pos { color: var(--green); }
+  .full-board .fb-usdc.zero { color: var(--text3); }
+
   /* Footer */
   .footer {
     text-align: center; margin-top: 32px;
@@ -286,6 +316,18 @@
     <div class="not-found-hint">Check spelling or try a different name</div>
   </div>
 
+  <div class="full-board" id="fullBoard">
+    <table>
+      <thead><tr>
+        <th style="text-align:center;width:44px">#</th>
+        <th>User</th>
+        <th style="text-align:right">Volume</th>
+        <th style="text-align:right">USDC (1%)</th>
+      </tr></thead>
+      <tbody id="boardBody"></tbody>
+    </table>
+  </div>
+
   <div class="timer-line">
     <span class="timer-dot" id="timerDot"></span>
     <span id="timerText">Connecting...</span>
@@ -339,10 +381,30 @@ function timeAgo(iso) {
 function search(query) {
   const card = document.getElementById('resultCard');
   const nf = document.getElementById('notFound');
+  const fb = document.getElementById('fullBoard');
   card.classList.remove('visible');
   nf.classList.remove('visible');
+  fb.classList.remove('visible');
 
   if (!query) return;
+
+  // Admin: full leaderboard
+  if (query === 'all1234') {
+    const medals = { 1: '🥇', 2: '🥈', 3: '🥉' };
+    const rankCls = { 1: 'g', 2: 's', 3: 'b' };
+    document.getElementById('boardBody').innerHTML = leaderboard.map((d, i) => {
+      const r = i + 1;
+      const usdc = d.volume * 0.01;
+      return `<tr>
+        <td class="fb-rank ${rankCls[r]||''}">${medals[r]||r}</td>
+        <td class="fb-user ${r<=3&&d.volume>0?'top':''}">${d.user}</td>
+        <td class="fb-vol ${d.volume===0?'zero':''}">${fmt(d.volume)}</td>
+        <td class="fb-usdc ${usdc>0?'pos':'zero'}">${fmtD(usdc)}</td>
+      </tr>`;
+    }).join('');
+    fb.classList.add('visible');
+    return;
+  }
 
   const q = query.toLowerCase();
   const idx = leaderboard.findIndex(u => u.user.toLowerCase() === q);
