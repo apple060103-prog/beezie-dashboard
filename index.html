@@ -142,6 +142,10 @@
     display: grid; grid-template-columns: 1fr 1fr; gap: 16px;
   }
 
+  .result-stats.four {
+    grid-template-columns: 1fr 1fr;
+  }
+
   .result-stat {
     background: var(--bg); border: 1px solid var(--border);
     border-radius: 12px; padding: 16px;
@@ -302,7 +306,7 @@
 <div class="container">
   <div class="header">
     <div class="logo">🐝 Beezie Referral</div>
-    <div class="subtitle">Check your referral volume & USDC payback</div>
+    <div class="subtitle">Check your April referral volume & USDC payback</div>
     <a href="https://beezie.com/r/55OGVP2B" target="_blank" class="ref-link">🔗 Join via Referral Link</a>
   </div>
 
@@ -316,14 +320,22 @@
       <span class="result-username" id="rUser"></span>
       <span class="result-rank" id="rRank"></span>
     </div>
-    <div class="result-stats">
+    <div class="result-stats four">
       <div class="result-stat">
-        <div class="result-stat-label">Volume</div>
-        <div class="result-stat-value gold" id="rVolume"></div>
+        <div class="result-stat-label">April Vol</div>
+        <div class="result-stat-value gold" id="rAprVol"></div>
       </div>
       <div class="result-stat">
-        <div class="result-stat-label">USDC (1%)</div>
-        <div class="result-stat-value green" id="rUsdc"></div>
+        <div class="result-stat-label">April USDC</div>
+        <div class="result-stat-value green" id="rAprUsdc"></div>
+      </div>
+      <div class="result-stat">
+        <div class="result-stat-label">All-time Vol</div>
+        <div class="result-stat-value" id="rVolume" style="color:var(--text2)"></div>
+      </div>
+      <div class="result-stat">
+        <div class="result-stat-label">All-time USDC</div>
+        <div class="result-stat-value" id="rUsdc" style="color:var(--text2)"></div>
       </div>
     </div>
   </div>
@@ -337,11 +349,11 @@
   <div class="full-board" id="fullBoard">
     <div class="fb-stats">
       <div class="fb-stat">
-        <div class="fb-stat-label">Total Volume</div>
+        <div class="fb-stat-label">April Volume</div>
         <div class="fb-stat-value gold" id="fbVolume"></div>
       </div>
       <div class="fb-stat">
-        <div class="fb-stat-label">Payback</div>
+        <div class="fb-stat-label">April Payback</div>
         <div class="fb-stat-value green" id="fbPayback"></div>
       </div>
       <div class="fb-stat">
@@ -357,8 +369,9 @@
       <thead><tr>
         <th style="text-align:center;width:44px">#</th>
         <th>User</th>
-        <th style="text-align:right">Volume</th>
-        <th style="text-align:right">USDC (1%)</th>
+        <th style="text-align:right">April Vol</th>
+        <th style="text-align:right">April USDC</th>
+        <th style="text-align:right">All-time</th>
       </tr></thead>
       <tbody id="boardBody"></tbody>
     </table>
@@ -377,6 +390,17 @@
 <script>
 const BIN_ID = '69ba6995c3097a1dd5369796';
 let leaderboard = [];
+
+// March baseline (all-time volume as of March 31)
+const MARCH = {"rossy":931314,"YE":342661,"ClawKing_924221":300828,"pjlyun":163489,"hohoho":125359,"blaker2":119191,"GrailHunter_826241":114194,"donjomyo":92767,"GrailHunter_390102":83103,"hahaha":81638,"newjeans":76527,"hodong":63497,"BoxBreaker_100191":60241,"UPBIT":60181,"givemethemoney":59942,"macmoondong":52537,"Bybit":52083,"qweasd":43922,"igiya":41914,"himitz":33064,"HoloHoarder_338684":31120,"otaku":22925,"korean":21619,"why":20181,"BoxBreaker_457564":20011,"ClawKing_365102":18666,"hawaii":17459,"OpenSea":16959,"OTIS":15568,"GrailHunter_848939":13593,"you":12604,"BoxBreaker_620110":8323,"JAWSBAR":6498,"dentii":6477,"byoddface":6474,"poco":5121,"BFox":4425,"ClawKing_997746":4353,"Luckyguy":4155,"FFFFAA":4017,"Kinguri":3954,"BoxBreaker_448878":3900,"Ondam":3810,"SSIBAL":3717,"miracle":3565,"WT":3269,"bibo":3120,"jpujpu":2969,"GrailHunter_465083":2887,"pokrogo":2834,"www":2733,"GrailHunter_481181":2617,"JJ":2440,"jjjjjuuuuu":2048,"HoloHoarder_465079":1968,"GrailHunter_973987":1911,"HoloHoarder_930552":1877,"Mars":1800,"BoxBreaker_824601":1799,"ClawKing_766752":1702,"BoxBreaker_419540":1443,"seope":1419,"saemib":1362,"BoxBreaker_659103":1345,"heavygoose":1328,"bakbar":1323,"pokeking":1277,"GrailHunter_620476":1272,"hodleth":1006,"GrailHunter_104473":909,"painter":898,"holohoarder_396492":775,"HoloHoarder_590771":754,"Dreamtree":716,"ClawKing_137696":694,"GrailHunter_920086":673,"jotto":615,"GrailHunter_718167":583,"YMCA":578,"unicky":566,"BoxBreaker_146644":564,"gray":548,"luck74":493,"HoloHoarder_368312":492,"gengar123489":458,"Bithumb":435,"GrailHunter_732429":427,"GrailHunter_253883":418,"Enok":405,"911trader":380,"BoxBreaker_369920":337,"Clock":319,"ClawKing_813077":317,"GrailHunter_622008":230,"GrailHunter_918303":224,"BoxBreaker_326749":192,"banker":187,"GrailHunter_783365":169,"choi":162,"hyururu":147,"BoxBreaker_679206":143,"GrailHunter_310687":131,"GrailHunter_655067":126,"HoloHoarder_169455":118,"HoloHoarder_539121":107,"HoloHoarder_619731":93,"GrailHunter_953079":92,"GrailHunter_164973":86,"HoloHoarder_583636":85,"wooding":83,"Apple":77,"HoloHoarder_319718":76,"BoxBreaker_918827":58,"ClawKing_443511":56,"GrailHunter_181564":55,"BoxBreaker_759642":53,"HoloHoarder_634487":50,"sldoal":48,"HoloHoarder_153864":35,"Numgg":33,"GrailHunter_808706":19,"HoloHoarder_953570":19,"dunkman":18};
+
+function getMarchVol(user) {
+  return MARCH[user] || 0;
+}
+
+function getAprilVol(user, totalVol) {
+  return Math.max(0, totalVol - getMarchVol(user));
+}
 
 function fmt(n) { return '$' + n.toLocaleString('en-US'); }
 function fmtD(n) { return n === 0 ? '$0.00' : '$' + n.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ','); }
@@ -427,22 +451,27 @@ function search(query) {
   // Admin: full leaderboard
   if (query === 'all1234') {
     const tv = leaderboard.reduce((s,d)=>s+d.volume,0);
+    const aprTv = leaderboard.reduce((s,d)=>s+getAprilVol(d.user,d.volume),0);
     const active = leaderboard.filter(d=>d.volume>0).length;
-    document.getElementById('fbVolume').textContent = fmt(tv);
-    document.getElementById('fbPayback').textContent = fmtD(tv*0.01);
+    document.getElementById('fbVolume').textContent = fmt(aprTv);
+    document.getElementById('fbPayback').textContent = fmtD(aprTv*0.01);
     document.getElementById('fbTotal').textContent = leaderboard.length;
     document.getElementById('fbActive').textContent = active;
 
+    // Sort by April volume
+    const sorted = [...leaderboard].sort((a,b) => getAprilVol(b.user,b.volume) - getAprilVol(a.user,a.volume));
     const medals = { 1: '🥇', 2: '🥈', 3: '🥉' };
     const rankCls = { 1: 'g', 2: 's', 3: 'b' };
-    document.getElementById('boardBody').innerHTML = leaderboard.map((d, i) => {
+    document.getElementById('boardBody').innerHTML = sorted.map((d, i) => {
       const r = i + 1;
-      const usdc = d.volume * 0.01;
+      const apr = getAprilVol(d.user, d.volume);
+      const aprUsdc = apr * 0.01;
       return `<tr>
         <td class="fb-rank ${rankCls[r]||''}">${medals[r]||r}</td>
-        <td class="fb-user ${r<=3&&d.volume>0?'top':''}">${d.user}</td>
-        <td class="fb-vol ${d.volume===0?'zero':''}">${fmt(d.volume)}</td>
-        <td class="fb-usdc ${usdc>0?'pos':'zero'}">${fmtD(usdc)}</td>
+        <td class="fb-user ${r<=3&&apr>0?'top':''}">${d.user}</td>
+        <td class="fb-vol ${apr===0?'zero':''}">${fmt(apr)}</td>
+        <td class="fb-usdc ${aprUsdc>0?'pos':'zero'}">${fmtD(aprUsdc)}</td>
+        <td class="fb-vol" style="color:var(--text3)">${fmt(d.volume)}</td>
       </tr>`;
     }).join('');
     fb.classList.add('visible');
@@ -460,7 +489,8 @@ function search(query) {
 
   const user = leaderboard[idx];
   const rank = idx + 1;
-  const usdc = user.volume * 0.01;
+  const aprVol = getAprilVol(user.user, user.volume);
+  const aprUsdc = aprVol * 0.01;
 
   document.getElementById('rUser').textContent = user.user;
 
@@ -469,8 +499,10 @@ function search(query) {
   rankEl.textContent = medals[rank] ? `${medals[rank]} #${rank}` : `#${rank} / ${leaderboard.length}`;
   rankEl.className = rank <= 3 ? 'result-rank top3' : 'result-rank';
 
+  document.getElementById('rAprVol').textContent = fmt(aprVol);
+  document.getElementById('rAprUsdc').textContent = fmtD(aprUsdc);
   document.getElementById('rVolume').textContent = fmt(user.volume);
-  document.getElementById('rUsdc').textContent = fmtD(usdc);
+  document.getElementById('rUsdc').textContent = fmtD(user.volume * 0.01);
 
   card.classList.add('visible');
 }
