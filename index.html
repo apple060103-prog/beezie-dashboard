@@ -260,6 +260,19 @@
   }
   .fb-stat-value.gold { color: var(--accent); }
   .fb-stat-value.green { color: var(--green); }
+  .fb-tabs {
+    display: flex; border-bottom: 1px solid var(--border);
+  }
+  .fb-tab {
+    flex: 1; padding: 12px; text-align: center;
+    font-family: 'JetBrains Mono', monospace; font-size: 12px;
+    font-weight: 600; color: var(--text3);
+    background: none; border: none; cursor: pointer;
+    border-bottom: 2px solid transparent;
+    transition: all 0.2s;
+  }
+  .fb-tab:hover { color: var(--text2); }
+  .fb-tab.active { color: var(--accent); border-bottom-color: var(--accent); }
   .full-board table { width: 100%; border-collapse: collapse; }
   .full-board thead th {
     padding: 12px 14px; font-family: 'JetBrains Mono', monospace;
@@ -365,16 +378,32 @@
         <div class="fb-stat-value" id="fbActive"></div>
       </div>
     </div>
-    <table>
-      <thead><tr>
-        <th style="text-align:center;width:44px">#</th>
-        <th>User</th>
-        <th style="text-align:right">April Vol</th>
-        <th style="text-align:right">April USDC</th>
-        <th style="text-align:right">All-time</th>
-      </tr></thead>
-      <tbody id="boardBody"></tbody>
-    </table>
+    <div class="fb-tabs">
+      <button class="fb-tab active" onclick="switchTab('april')">April</button>
+      <button class="fb-tab" onclick="switchTab('alltime')">All-time</button>
+    </div>
+    <div id="aprilTable">
+      <table>
+        <thead><tr>
+          <th style="text-align:center;width:44px">#</th>
+          <th>User</th>
+          <th style="text-align:right">Volume</th>
+          <th style="text-align:right">USDC (1%)</th>
+        </tr></thead>
+        <tbody id="aprilBody"></tbody>
+      </table>
+    </div>
+    <div id="alltimeTable" style="display:none">
+      <table>
+        <thead><tr>
+          <th style="text-align:center;width:44px">#</th>
+          <th>User</th>
+          <th style="text-align:right">Volume</th>
+          <th style="text-align:right">USDC (1%)</th>
+        </tr></thead>
+        <tbody id="alltimeBody"></tbody>
+      </table>
+    </div>
   </div>
 
   <div class="timer-line">
@@ -458,22 +487,29 @@ function search(query) {
     document.getElementById('fbTotal').textContent = leaderboard.length;
     document.getElementById('fbActive').textContent = active;
 
-    // Sort by April volume
-    const sorted = [...leaderboard].sort((a,b) => getAprilVol(b.user,b.volume) - getAprilVol(a.user,a.volume));
     const medals = { 1: '🥇', 2: '🥈', 3: '🥉' };
     const rankCls = { 1: 'g', 2: 's', 3: 'b' };
-    document.getElementById('boardBody').innerHTML = sorted.map((d, i) => {
-      const r = i + 1;
-      const apr = getAprilVol(d.user, d.volume);
-      const aprUsdc = apr * 0.01;
-      return `<tr>
-        <td class="fb-rank ${rankCls[r]||''}">${medals[r]||r}</td>
-        <td class="fb-user ${r<=3&&apr>0?'top':''}">${d.user}</td>
-        <td class="fb-vol ${apr===0?'zero':''}">${fmt(apr)}</td>
-        <td class="fb-usdc ${aprUsdc>0?'pos':'zero'}">${fmtD(aprUsdc)}</td>
-        <td class="fb-vol" style="color:var(--text3)">${fmt(d.volume)}</td>
-      </tr>`;
-    }).join('');
+
+    function renderTable(data, bodyId) {
+      document.getElementById(bodyId).innerHTML = data.map((d, i) => {
+        const r = i + 1;
+        return `<tr>
+          <td class="fb-rank ${rankCls[r]||''}">${medals[r]||r}</td>
+          <td class="fb-user ${r<=3&&d.vol>0?'top':''}">${d.user}</td>
+          <td class="fb-vol ${d.vol===0?'zero':''}">${fmt(d.vol)}</td>
+          <td class="fb-usdc ${d.vol>0?'pos':'zero'}">${fmtD(d.vol*0.01)}</td>
+        </tr>`;
+      }).join('');
+    }
+
+    // April table: sorted by April volume
+    const aprilData = [...leaderboard].map(d => ({ user: d.user, vol: getAprilVol(d.user, d.volume) })).sort((a,b) => b.vol - a.vol);
+    renderTable(aprilData, 'aprilBody');
+
+    // All-time table: sorted by total volume
+    const alltimeData = [...leaderboard].map(d => ({ user: d.user, vol: d.volume })).sort((a,b) => b.vol - a.vol);
+    renderTable(alltimeData, 'alltimeBody');
+
     fb.classList.add('visible');
     return;
   }
@@ -505,6 +541,20 @@ function search(query) {
   document.getElementById('rUsdc').textContent = fmtD(user.volume * 0.01);
 
   card.classList.add('visible');
+}
+
+// Tab switching
+function switchTab(tab) {
+  document.querySelectorAll('.fb-tab').forEach(t => t.classList.remove('active'));
+  if (tab === 'april') {
+    document.getElementById('aprilTable').style.display = '';
+    document.getElementById('alltimeTable').style.display = 'none';
+    document.querySelectorAll('.fb-tab')[0].classList.add('active');
+  } else {
+    document.getElementById('aprilTable').style.display = 'none';
+    document.getElementById('alltimeTable').style.display = '';
+    document.querySelectorAll('.fb-tab')[1].classList.add('active');
+  }
 }
 
 // Timer
